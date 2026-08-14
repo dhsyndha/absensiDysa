@@ -1,98 +1,126 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { router } from "expo-router";
+import { simpanSession } from "@/services/sessionService";
+import { login } from "@/services/authService";
+import { seedDatabase } from "@/seed/seed";
+import { useAuth } from "@/context/AuthContext";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import AppButton from "../components/AppButton";
+import AppInput from "../components/AppInput";
+import Logo from "../components/Logo";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+export default function LoginScreen() {
+  const [nim, setNim] = useState("");
+  const [password, setPassword] = useState("");
+  const { setUser } = useAuth();
+  
+const handleLogin = async () => {
+  try {
+    const hasil = await login(nim, password);
+
+    setUser(hasil.user);
+
+    await simpanSession(hasil.user);
+
+    router.replace("/dashboard");
+  } catch (e: any) {
+    alert(e.message);
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+};
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <View style={styles.container}>
+      <Logo />
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.form}>
+        <Text style={styles.label}>NIM</Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <AppInput
+          placeholder="Masukkan NIM"
+          value={nim}
+          onChangeText={setNim}
+        />
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Text style={styles.label}>Password</Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <AppInput
+          placeholder="Masukkan Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        <AppButton
+          title="Masuk"
+          onPress={handleLogin}
+        />
+
+        <TouchableOpacity
+          onPress={() => router.push("/aktivasi")}
+          style={styles.buttonBlue}
+        >
+          <Text style={styles.buttonText}>
+            Aktivasi Akun
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={async () => {
+            await seedDatabase();
+            alert("Import berhasil!");
+          }}
+          style={styles.buttonBlue}
+        >
+          <Text style={styles.buttonText}>
+            Import Database
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#F5F9FF",
+    justifyContent: "center",
+    paddingHorizontal: 25,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+
+  form: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  label: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
   },
-  title: {
-    textAlign: 'center',
+
+  buttonBlue: {
+    marginTop: 15,
+    backgroundColor: "#2563EB",
+    padding: 15,
+    borderRadius: 12,
   },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  buttonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "700",
   },
 });

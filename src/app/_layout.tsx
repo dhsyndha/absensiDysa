@@ -1,18 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Stack } from "expo-router";
+import { AuthProvider } from "@/context/AuthContext";
+import { useFonts } from "expo-font";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import {
+  Ionicons,
+  FontAwesome5,
+  Feather,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
-SplashScreen.preventAutoHideAsync();
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+    ...FontAwesome5.font,
+    ...Feather.font,
+    ...MaterialCommunityIcons.font,
+  });
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <AuthProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="aktivasi" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="absensi/[id]" />
+        <Stack.Screen name="absensi/detail/[mahasiswaId]" />
+      </Stack>
+    </AuthProvider>
   );
 }
