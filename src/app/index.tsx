@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { router } from "expo-router";
+
 import { simpanSession } from "@/services/sessionService";
 import { login } from "@/services/authService";
 import { seedDatabase } from "@/seed/seed";
 import { useAuth } from "@/context/AuthContext";
+
 import {
   StyleSheet,
   Text,
@@ -18,21 +20,37 @@ import Logo from "../components/Logo";
 export default function LoginScreen() {
   const [nim, setNim] = useState("");
   const [password, setPassword] = useState("");
+
   const { setUser } = useAuth();
-  
-const handleLogin = async () => {
-  try {
-    const hasil = await login(nim, password);
 
-    setUser(hasil.user);
+  const isDemo =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("demo") === "true";
 
-    await simpanSession(hasil.user);
+  useEffect(() => {
+    if (isDemo) {
+      router.replace("/(tabs)/dashboard");
+    }
+  }, [isDemo]);
 
-    router.replace("/dashboard");
-  } catch (e: any) {
-    alert(e.message);
+  // Kalau demo, jangan tampilkan halaman login
+  if (isDemo) {
+    return null;
   }
-};
+
+  const handleLogin = async () => {
+    try {
+      const hasil = await login(nim, password);
+
+      setUser(hasil.user);
+
+      await simpanSession(hasil.user);
+
+      router.replace("/(tabs)/dashboard");
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
 
   return (
     <View style={styles.container}>

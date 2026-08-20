@@ -5,7 +5,11 @@ import { useUser } from "@/hooks/useUser";
 export default function TabLayout() {
   const user = useUser();
 
-  if (!user) return null;
+  const isDemo =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("demo") === "true";
+
+if (!user && !isDemo) return null;
 
   return (
     <Tabs
@@ -34,7 +38,7 @@ export default function TabLayout() {
       />
 
       {/* Khusus Admin */}
-      {user.role === "admin" && (
+      {(user?.role === "admin" || isDemo) && (
         <Tabs.Screen
           name="mahasiswa"
           options={{

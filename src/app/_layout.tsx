@@ -2,17 +2,19 @@ import { Stack } from "expo-router";
 import { AuthProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
 
-import Ionicons from "@expo/vector-icons/Ionicons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Feather from "@expo/vector-icons/Feather";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import {
+  Ionicons,
+  FontAwesome5,
+  Feather,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 export default function RootLayout() {
   useFonts({
-    ionicons: Ionicons.font,
-    FontAwesome5: FontAwesome5.font,
-    feather: Feather.font,
-    MaterialCommunityIcons: MaterialCommunityIcons.font,
+    ...Ionicons.font,
+    ...FontAwesome5.font,
+    ...Feather.font,
+    ...MaterialCommunityIcons.font,
   });
 
   return (
