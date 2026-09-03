@@ -1,5 +1,5 @@
 import { getMahasiswaById } from "@/services/mahasiswaService";
-import { simpanPresensi, getPresensiByMahasiswaDanPertemuan, setDemoMode } from "@/services/presensiService";
+import { simpanPresensi, getPresensiByMahasiswaDanPertemuan } from "@/services/presensiService";
 import { Mahasiswa } from "@/types/Mahasiswa";
 import {
   Presensi,
@@ -9,7 +9,6 @@ import { Modal } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -24,7 +23,6 @@ import {
 } from "react-native";
 
 export default function DetailAbsensi() {
-  const { isDemo } = useAuth();
   const {
   mahasiswaId,
   matkulId,
@@ -198,8 +196,7 @@ async function ambilFoto() {
 
 setJamAbsen(jam);
 
-      setDemoMode(isDemo);
-      await simpanPresensi(data);
+await simpanPresensi(data);
 
       showModal(
         "✅",
@@ -242,29 +239,7 @@ setJamAbsen(jam);
         <View style={styles.headerTop}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              if (router.canGoBack()) {
-                if (router.canGoBack()) {
-                  router.back();
-                } else {
-                  router.replace({
-                    pathname: "/absensi/[id]",
-                    params: {
-                      id: String(matkulId),
-                      ...(isDemo ? { demo: "true" } : {}),
-                    },
-                  });
-                }
-              } else {
-                router.replace({
-                  pathname: "/absensi/[id]",
-                  params: {
-                    id: String(matkulId),
-                    ...(isDemo ? { demo: "true" } : {}),
-                  },
-                });
-              }
-            }}
+            onPress={() => router.back()}
           >
             <Feather
               name="arrow-left"

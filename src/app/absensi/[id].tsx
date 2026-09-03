@@ -1,565 +1,186 @@
-import { getMahasiswaById } from "@/services/mahasiswaService";
-import { simpanPresensi, getPresensiByMahasiswaDanPertemuan } from "@/services/presensiService";
-import { Mahasiswa } from "@/types/Mahasiswa";
-import {
-  Presensi,
-  StatusPresensi,
-} from "@/types/Presensi";
-import { Modal } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+import { getSemuaMahasiswa } from "@/services/mahasiswaService";
+import { getMahasiswaByMatkul } from "@/services/mahasiswaService";
+import { getMatkulById } from "@/services/matkulService";
+import { getPresensiByMatkul } from "@/services/presensiService";
+import { materiMatkul } from "@/data/materiMatkul";
+import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { TextInput, Alert } from "react-native";
+import { buatAtauAmbilPertemuan } from "@/services/pertemuanService";
+import { Mahasiswa as MahasiswaType } from "@/types/Mahasiswa";
+import { MataKuliah as MataKuliahType } from "@/types/MataKuliah";
+import { canEditPresensi } from "@/services/permissionService";
+import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/context/AuthContext";
 import {
-  Alert,
-  Image,
-  Platform,
-  ScrollView,
+  FlatList,
+  Pressable,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
-export default function DetailAbsensi() {
-  const {
-  mahasiswaId,
-  matkulId,
-  pertemuanId,
-} = useLocalSearchParams<{
-  mahasiswaId: string;
-  matkulId: string;
-  pertemuanId: string;
-}>();
+export default function AbsensiScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const user = useUser();
+  const { isDemo } = useAuth();
+  const [matkul, setMatkul] = useState<MataKuliahType | null>(null);
+  const [mahasiswa, setMahasiswa] = useState<MahasiswaType[]>([]);
+  const [presensi, setPresensi] = useState<any[]>([]);
+  const [pertemuanId, setPertemuanId] = useState("");
 
-  const [mahasiswa, setMahasiswa] =
-    useState<Mahasiswa | null>(null);
+  useFocusEffect(
+  useCallback(() => {
+    if (id) {
+      loadData();
+    }
+  }, [id])
+);
 
-  const [status, setStatus] =
-    useState<StatusPresensi>("Belum");
+async function loadData() {
+  const dataMatkul = await getMatkulById(String(id));
 
-  const [alasan, setAlasan] =
-    useState("");
+  if (dataMatkul) {
+    setMatkul(dataMatkul);
+  }
 
-  const [foto, setFoto] = useState("");
-  const [jamAbsen, setJamAbsen] = useState("");
-  const [loading, setLoading] =
-    useState(false);
+  const dataMhs = await getMahasiswaByMatkul(String(id));
+  const pertemuan = await buatAtauAmbilPertemuan(String(id));
+    setPertemuanId(pertemuan.id);
 
+    const dataPresensi = await getPresensiByMatkul(
+      String(id),
+      pertemuan.id
+    );
 
- const [modalData, setModalData] = useState({
-  visible: false,
-  icon: "✅",
-  title: "",
-  message: "",
-  success: false,
-});
-
-useEffect(() => {
-  loadMahasiswa();
-}, []);
-
-
-  function showModal(
-  icon: string,
-  title: string,
-  message: string,
-  success = false
-) {
-  setModalData({
-    visible: true,
-    icon,
-    title,
-    message,
-    success,
-  });
+  setMahasiswa(dataMhs);
+  setPresensi(dataPresensi);
 }
 
 
-async function ambilFoto() {
-  const permission =
-    await ImagePicker.requestCameraPermissionsAsync();
-
-  if (!permission.granted) {
-  Alert.alert(
-    "Izin Kamera",
-    "Aplikasi membutuhkan akses kamera."
-  );
-  return;
-}
-
-  const result = await ImagePicker.launchCameraAsync({
-    allowsEditing: true,
-    quality: 0.7,
-  });
-
-  if (!result.canceled) {
-    setFoto(result.assets[0].uri);
-  }
-}
-
-  async function loadMahasiswa() {
-    if (!mahasiswaId) return;
-
-    try {
-      const data =
-        await getMahasiswaById(mahasiswaId);
-
-      setMahasiswa(data);
-
-      const presensi = await getPresensiByMahasiswaDanPertemuan(
-        mahasiswaId,
-        pertemuanId
-      );
-
-      if (presensi) {
-      const data = presensi as Presensi;
-
-      setStatus(data.status);
-      setAlasan(data.alasan);
-      setFoto(data.fotoBukti);
-      setJamAbsen(data.jam);
-      showModal(
-        "ℹ️",
-        "Presensi Sudah Dilakukan",
-        "Anda sudah melakukan presensi untuk pertemuan ini."
-      );
-      return;
-    }
-
-    setStatus("Belum");
-    setAlasan("");
-    setFoto("");
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async function handleSave() {
-    if (!mahasiswa) return;
-
-    if (status === "Belum") {
-      showModal(
-        "⚠️",
-        "Status Presensi",
-        "Silakan pilih status kehadiran terlebih dahulu."
-      );
-      return;
-    }
-
-    if (
-      ["Telat", "Izin"].includes(status) &&
-      alasan.trim() === ""
-    ) {
-      showModal(
-        "📝",
-        "Alasan Diperlukan",
-        "Silakan isi alasan terlebih dahulu."
-      );
-      return;
-    }
-
-    try {
-      setLoading(true);
-      if (
-        ["Hadir", "Telat"].includes(status) &&
-        !foto
-      ) {
-        showModal(
-          "📷",
-          "Foto Belum Diambil",
-          "Silakan ambil foto terlebih dahulu."
-        );
-        return;
-      }
-      const now = new Date();
-
-      const jam = now.toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-
-      const data: Presensi = {
-        mahasiswaId: mahasiswa.id,
-        matkulId: String(matkulId),
-        pertemuanId: String(pertemuanId),
-
-        tanggal: now.toLocaleDateString("sv-SE"),
-        jam: jam,
-
-        status,
-        alasan,
-        fotoBukti: foto,
-      };
-
-setJamAbsen(jam);
-
-await simpanPresensi(data);
-
-      showModal(
-        "✅",
-        "Presensi Berhasil",
-        "Data presensi berhasil disimpan.",
-        true
-      );
-
-      return;
-    } catch (e) {
-      console.log(e);
-
-      showModal(
-        "❌",
-        "Gagal Menyimpan",
-        "Terjadi kesalahan saat menyimpan data."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (!mahasiswa) {
+  if (!matkul) {
     return (
       <View style={styles.center}>
-        <Text>Loading...</Text>
+        <Text>Mata kuliah tidak ditemukan.</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-
-        {}
-        <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Feather
-              name="arrow-left"
-              size={24}
-              color="#FFF"
-            />
-          </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>
-              Detail Absensi
-            </Text>
-        </View>
-      </View>
-
-        {}
-
-        <View style={styles.profileCard}>
-
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {mahasiswa.nama.charAt(0)}
-            </Text>
-          </View>
-
-          <Text style={styles.nama}>
-            {mahasiswa.nama}
-          </Text>
-
-          <Text style={styles.nim}>
-            NIM • {mahasiswa.nim}
-          </Text>
-
-        </View>
-
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>
-            📚 Mahasiswa Aktif
-          </Text>
-        </View>
-
-        {}
-
-        <View style={styles.card}>
-
-          <Text style={styles.sectionTitle}>
-            Status Kehadiran
-          </Text>
-
-          <Text style={styles.sectionDesc}>
-            Pilih status mahasiswa
-          </Text>
-
-          <View style={styles.optionContainer}>
-
-            {[
-              "Hadir",
-              "Telat",
-              "Izin",
-            ].map((item) => (
-
-              <TouchableOpacity
-                key={item}
-                style={[
-                  styles.statusCard,
-                  status === item &&
-                    styles.statusCardActive,
-                ]}
-                onPress={() =>
-                  setStatus(item as StatusPresensi)
-                }
-              >
-
-                <Text
-                  style={[
-                    styles.statusTitle,
-                    status === item && {
-                      color: "#fff",
-                    },
-                  ]}
-                >
-                  {item}
-                </Text>
-
-              </TouchableOpacity>
-
-            ))}
-
-          </View>
-
-          {["Telat", "Izin"].includes(status) && (
-
-            <>
-
-              <Text style={styles.inputTitle}>
-                Alasan
-              </Text>
-
-              <TextInput
-                style={styles.input}
-                value={alasan}
-                onChangeText={setAlasan}
-                multiline
-                placeholder="Masukkan alasan..."
-              />
-
-            </>
-
-          )}
-
-          {["Hadir", "Telat"].includes(status) && (
-
-            <TouchableOpacity
-              style={styles.cameraCard}
-              onPress={ambilFoto}
-            >
-
-              <Text style={{ fontSize: 45 }}>
-                📷
-              </Text>
-
-              <Text style={styles.cameraTitle}>
-                Ambil Foto Bukti
-              </Text>
-              {foto !== "" && (
-                <Image
-                  source={{ uri: foto }}
-                  style={{
-                    width: "100%",
-                    height: 220,
-                    borderRadius: 20,
-                    marginTop: 20,
-                  }}
-                />
-              )}
-
-              <Text style={styles.cameraSubtitle}>
-                Foto wajib diambil sebelum
-                presensi disimpan.
-              </Text>
-
-            </TouchableOpacity>
-
-          )}
-
-        </View>
-
-        {status !== "Belum" && (
-
-          <View style={styles.successCard}>
-
-            <Text style={styles.successTitle}>
-              ✅ Data Presensi
-            </Text>
-
-            <View style={styles.successRow}>
-              <Text>Status</Text>
-
-              <Text
-                style={{
-                  fontWeight: "700",
-                  color: "#16A34A",
-                }}
-              >
-                {status}
-              </Text>
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.successRow}>
-              <Text>Jam</Text>
-
-              <Text>
-               {jamAbsen}
-              </Text>
-
-            </View>
-
-          </View>
-
-        )}
+    <View style={styles.container}>
+      <View style={styles.header}>
         <TouchableOpacity
-          style={[
-            styles.saveButton,
-            loading && { opacity: 0.6 },
-          ]}
-          disabled={loading}
-          onPress={handleSave}
+          onPress={() => router.back()}
+          style={styles.backButton}
         >
-          <Text style={styles.saveText}>
-            {loading ? "Menyimpan..." : "Simpan Presensi"}
-          </Text>
+          <Ionicons
+            name="arrow-back"
+            size={28}
+            color="#fff"
+          />
         </TouchableOpacity>
 
-        <Modal
-        visible={modalData.visible}
-        transparent
-        animationType="fade"
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.35)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              width: "82%",
-              backgroundColor: "#fff",
-              borderRadius: 20,
-              padding: 25,
-              alignItems: "center",
-            }}
-          >
-           <Text
-            style={{
-              fontSize: 55,
-              marginBottom: 10,
-            }}
-          >
-            {modalData.icon}
-          </Text>
+        <Text style={styles.title}>
+          {matkul.nama}
+        </Text>
 
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "700",
-                marginBottom: 10,
-              }}
-            >
-              {modalData.title}
-            </Text>
+        <Text style={styles.subtitle}>
+          {matkul.hari} • {matkul.jam}
+        </Text>
 
-            <Text
-              style={{
-                textAlign: "center",
-                color: "#64748B",
-                marginBottom: 20,
-              }}
-            >
-              {modalData.message}
-            </Text>
-            <View
-              style={{
-                width: "100%",
-                backgroundColor: "#F8FAFC",
-                borderRadius: 15,
-                padding: 15,
-                marginBottom: 20,
-              }}
-            >
-              <Text style={{ fontWeight: "700" }}>
-                Status : {status}
-              </Text>
+        <Text style={styles.subtitle}>
+          {matkul.ruang}
+        </Text>
+      </View>
 
-              <Text style={{ marginTop: 8 }}>
-                Waktu : {jamAbsen}
-              </Text>
+      <FlatList
+        data={mahasiswa}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ padding: 20 }}
+        renderItem={({ item }) => {
+          const data = presensi.find(
+            (p) => p.mahasiswaId === item.id
+          );
 
-              {foto !== "" && (
-                <Image
-                  source={{ uri: foto }}
-                  style={{
-                    width: "100%",
-                    height: 220,
-                    borderRadius: 15,
-                    marginTop: 15,
-                  }}
-                  resizeMode="cover"
-                />
-              )}
-            </View>
+          const status = data?.status ?? "Belum";
+          const bisaKlik =
+            isDemo ||
+            canEditPresensi(user) ||
+            item.id === user?.refId;
+          return (
+            <Pressable
+                disabled={!bisaKlik}
+                style={[
+                  styles.card,
+                  !bisaKlik && { opacity: 0.6 },
+                ]}
+                onPress={async () => {
+                let idPertemuan = pertemuanId;
 
-            <TouchableOpacity
-              onPress={() => {
-                setModalData({
-                  ...modalData,
-                  visible: false,
+                if (!idPertemuan) {
+                  const hasil = await buatAtauAmbilPertemuan(String(id));
+                  idPertemuan = hasil.id;
+                  setPertemuanId(hasil.id);
+                }
+
+                router.push({
+                  pathname: "/absensi/detail/[mahasiswaId]",
+                  params: {
+                    mahasiswaId: item.id,
+                    matkulId: id,
+                    pertemuanId: idPertemuan,
+                  },
                 });
-
-                router.back();
               }}
-              style={{
-                width: "100%",
-                height: 55,
-                backgroundColor: "#2563EB",
-                borderRadius: 14,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 10,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 17,
-                  fontWeight: "700",
-                }}
               >
-                OK
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {item.nama.substring(0, 1)}
+                </Text>
+              </View>
 
-      </ScrollView>
-      );
-      }
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nama}>
+                  {item.nama}
+                </Text>
 
-      const styles = StyleSheet.create({
+                <Text style={styles.nim}>
+                  {item.nim}
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.badge,
+                  status === "Belum" && styles.belum,
+                  status === "Hadir" && styles.hadir,
+                  status === "Telat" && styles.telat,
+                  status === "Izin" && { backgroundColor: "#DBEAFE" },
+                  status === "Sakit" && { backgroundColor: "#FECACA" },
+                  status === "Berduka" && { backgroundColor: "#E9D5FF" },
+                  status === "Alfa" && { backgroundColor: "#FCA5A5" },
+                ]}
+              >
+                <Text style={styles.badgeText}>
+                  {status}
+                </Text>
+              </View>
+            </Pressable>
+          );
+        }}
+      />
+
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#EEF4FF",
-  },
-
-  content: {
-    paddingBottom: 40,
+    backgroundColor: "#F5F7FB",
   },
 
   center: {
@@ -569,224 +190,82 @@ await simpanPresensi(data);
   },
 
   header: {
-    backgroundColor: "#4F46E5",
-    paddingTop: 20,
-    paddingHorizontal: 24,
-    paddingBottom: 65,
-    borderBottomLeftRadius: 32,
-              borderBottomRightRadius: 32,
-            },
-            headerTop: {
-              flexDirection: "row",
-              alignItems: "center",
-            },
-
-            headerText: {
-              marginLeft: 12,
-              flex: 1,
-            },
-
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#2563EB",
+    padding: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
 
+  backButton: {
+    marginBottom: 16,
+  },
 
-  headerTitle: {
+  title: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "700",
   },
 
-  profileCard: {
+  subtitle: {
+    color: "#DBEAFE",
+    marginTop: 4,
+  },
+
+  card: {
     backgroundColor: "#fff",
-    marginHorizontal: 20,
-    marginTop: -40,
-    borderRadius: 25,
-    padding: 25,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
+    flexDirection: "row",
     alignItems: "center",
-    elevation: 5,
+    elevation: 2,
   },
 
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "#DBEAFE",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 15,
+    marginRight: 14,
   },
 
   avatarText: {
-    fontSize: 42,
+    fontSize: 20,
     fontWeight: "700",
     color: "#2563EB",
   },
 
   nama: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#0F172A",
   },
 
   nim: {
-    marginTop: 8,
     color: "#64748B",
+    marginTop: 3,
   },
 
   badge: {
-    alignSelf: "center",
-    marginTop: 18,
-    backgroundColor: "#DBEAFE",
-    paddingHorizontal: 18,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: 30,
   },
 
   badgeText: {
-    color: "#2563EB",
     fontWeight: "700",
   },
 
-  card: {
-    backgroundColor: "#fff",
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 24,
-    padding: 22,
-    elevation: 4,
+  belum: {
+    backgroundColor: "#E2E8F0",
   },
 
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#0F172A",
+  hadir: {
+    backgroundColor: "#DCFCE7",
   },
 
-  sectionDesc: {
-    color: "#64748B",
-    marginTop: 5,
-    marginBottom: 20,
-  },
-
-  optionContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-
-  statusCard: {
-    width: "48%",
-    height: 90,
-    borderRadius: 18,
-    backgroundColor: "#F8FAFC",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-
-  statusCardActive: {
-    backgroundColor: "#2563EB",
-    borderColor: "#2563EB",
-  },
-
-  statusTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#0F172A",
-  },
-
-  inputTitle: {
-    marginTop: 20,
-    marginBottom: 10,
-    fontWeight: "700",
-    fontSize: 17,
-  },
-
-  input: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 18,
-    padding: 18,
-    minHeight: 120,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    textAlignVertical: "top",
-  },
-
-  cameraCard: {
-    marginTop: 25,
-    backgroundColor: "#EFF6FF",
-    borderRadius: 20,
-    paddingVertical: 30,
-    alignItems: "center",
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: "#60A5FA",
-  },
-
-  cameraTitle: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1E3A8A",
-  },
-
-  cameraSubtitle: {
-    marginTop: 8,
-    color: "#64748B",
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-
-  successCard: {
-    backgroundColor: "#ECFDF5",
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 20,
-    padding: 20,
-  },
-
-  successTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#166534",
-    marginBottom: 18,
-    textAlign: "center",
-  },
-
-  successRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 5,
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#BBF7D0",
-    marginVertical: 10,
-  },
-
-  saveButton: {
-    marginHorizontal: 20,
-    marginTop: 25,
-    marginBottom: 40,
-    backgroundColor: "#2563EB",
-    borderRadius: 18,
-    height: 58,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 4,
-  },
-
-  saveText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
+  telat: {
+    backgroundColor: "#FEF3C7",
   },
 });
