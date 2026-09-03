@@ -46,11 +46,11 @@ export function AuthProvider({
       if (isDemo) {
         setUser({
           uid: "demo-user",
-          nama: "Guest Demo",
-          nomorIdentitas: "DEMO001",
+          nama: "",
+          nomorIdentitas: "",
           role: "mahasiswa",
           jabatan: "anggota",
-          email: "demo@example.com",
+          email: "",
           aktif: true,
           refId: "demo-user",
         });
