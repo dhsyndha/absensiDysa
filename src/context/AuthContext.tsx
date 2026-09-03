@@ -13,64 +13,40 @@ type UserType = User | null;
 type AuthContextType = {
   user: UserType;
   setUser: (user: UserType) => void;
+
   loading: boolean;
   setLoading: (loading: boolean) => void;
-  isDemo: boolean;
 };
 
-const AuthContext = createContext<AuthContextType>(
-  {} as AuthContextType
-);
+const AuthContext =
+  createContext<AuthContextType>(
+    {} as AuthContextType
+  );
 
 export function AuthProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState<UserType>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] =
+    useState<UserType>(null);
 
-  const [isDemo] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
+  const [loading, setLoading] =
+    useState(true);
+
+    useEffect(() => {
+  async function loadSession() {
+    const session = await getSession();
+
+    if (session) {
+      setUser(session);
     }
 
-    return (
-      new URLSearchParams(window.location.search).get("demo") ===
-      "true"
-    );
-  });
+    setLoading(false);
+  }
 
-  useEffect(() => {
-    async function loadSession() {
-      if (isDemo) {
-        setUser({
-          uid: "demo-user",
-          nama: "",
-          nomorIdentitas: "",
-          role: "mahasiswa",
-          jabatan: "anggota",
-          email: "",
-          aktif: true,
-          refId: "demo-user",
-        });
-
-        setLoading(false);
-        return;
-      }
-
-      const session = await getSession();
-
-      if (session) {
-        setUser(session);
-      }
-
-      setLoading(false);
-    }
-
-    loadSession();
-  }, [isDemo]);
-
+  loadSession();
+}, []);
   return (
     <AuthContext.Provider
       value={{
@@ -78,7 +54,6 @@ export function AuthProvider({
         setUser,
         loading,
         setLoading,
-        isDemo,
       }}
     >
       {children}
