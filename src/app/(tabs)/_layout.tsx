@@ -5,7 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 export default function TabLayout() {
   const { user, isDemo } = useAuth();
 
-  if (!user && !isDemo) return null;
+  if (!user && !isDemo) {
+    return null;
+  }
 
   return (
     <Tabs
@@ -27,7 +29,11 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="home" size={20} color={color} />
+            <FontAwesome5
+              name="home"
+              size={20}
+              color={color}
+            />
           ),
         }}
       />
@@ -37,9 +43,12 @@ export default function TabLayout() {
         options={{
           title: "Mahasiswa",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="users" size={20} color={color} />
+            <FontAwesome5
+              name="users"
+              size={20}
+              color={color}
+            />
           ),
-          href: user?.role === "admin" || isDemo ? undefined : null,
         }}
       />
 
@@ -48,7 +57,11 @@ export default function TabLayout() {
         options={{
           title: "Matkul",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="book" size={20} color={color} />
+            <FontAwesome5
+              name="book"
+              size={20}
+              color={color}
+            />
           ),
         }}
       />
@@ -58,7 +71,11 @@ export default function TabLayout() {
         options={{
           title: "Rekap",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="chart-bar" size={20} color={color} />
+            <FontAwesome5
+              name="chart-bar"
+              size={20}
+              color={color}
+            />
           ),
         }}
       />
@@ -68,7 +85,11 @@ export default function TabLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="user" size={20} color={color} />
+            <FontAwesome5
+              name="user"
+              size={20}
+              color={color}
+            />
           ),
         }}
       />

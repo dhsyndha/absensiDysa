@@ -9,7 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 
-const DEMO_KEY = "presensi-demo-data";
+const demoPresensi: Record<string, Presensi> = {};
 
 function isDemoMode() {
   return (
@@ -18,58 +18,30 @@ function isDemoMode() {
   );
 }
 
-function getDemoData(): any[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    return JSON.parse(localStorage.getItem(DEMO_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveDemoData(data: any[]) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(DEMO_KEY, JSON.stringify(data));
-  }
-}
-
 export async function simpanPresensi(data: Presensi) {
   const id = `${data.pertemuanId}_${data.mahasiswaId}`;
 
   if (isDemoMode()) {
-    const current = getDemoData();
-
-    const updated = [
-      ...current.filter((item) => item.id !== id),
-      {
-        ...data,
-        id,
-      },
-    ];
-
-    saveDemoData(updated);
+    demoPresensi[id] = {
+      ...data,
+      id,
+      jam:
+        data.jam ||
+        new Date().toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+    };
     return;
   }
 
-  await setDoc(
-    doc(db, "presensi", id),
-    data
-  );
+  await setDoc(doc(db, "presensi", id), data);
 }
 
 export async function getPresensiByMatkul(
   matkulId: string,
   pertemuanId: string
 ) {
-  if (isDemoMode()) {
-    return getDemoData().filter(
-      (item) =>
-        item.matkulId === matkulId &&
-        item.pertemuanId === pertemuanId
-    );
-  }
-
   const q = query(
     collection(db, "presensi"),
     where("matkulId", "==", matkulId),
@@ -78,21 +50,27 @@ export async function getPresensiByMatkul(
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => ({
+  const firebaseData = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  }));
+  })) as Presensi[];
+
+  if (!isDemoMode()) {
+    return firebaseData;
+  }
+
+  return firebaseData.map((item) => {
+    const demo = demoPresensi[
+      `${item.pertemuanId}_${item.mahasiswaId}`
+    ];
+
+    return demo || item;
+  });
 }
 
 export async function getPresensiMahasiswa(
   mahasiswaId: string
 ) {
-  if (isDemoMode()) {
-    return getDemoData().filter(
-      (item) => item.mahasiswaId === mahasiswaId
-    );
-  }
-
   const q = query(
     collection(db, "presensi"),
     where("mahasiswaId", "==", mahasiswaId)
@@ -100,10 +78,22 @@ export async function getPresensiMahasiswa(
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => ({
+  const firebaseData = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  }));
+  })) as Presensi[];
+
+  if (!isDemoMode()) {
+    return firebaseData;
+  }
+
+  return firebaseData.map((item) => {
+    const demo = demoPresensi[
+      `${item.pertemuanId}_${item.mahasiswaId}`
+    ];
+
+    return demo || item;
+  });
 }
 
 export async function getPresensiByMahasiswaDanPertemuan(
@@ -111,13 +101,12 @@ export async function getPresensiByMahasiswaDanPertemuan(
   pertemuanId: string
 ) {
   if (isDemoMode()) {
-    const found = getDemoData().find(
-      (item) =>
-        item.mahasiswaId === mahasiswaId &&
-        item.pertemuanId === pertemuanId
-    );
+    const demo =
+      demoPresensi[`${pertemuanId}_${mahasiswaId}`];
 
-    return found || null;
+    if (demo) {
+      return demo;
+    }
   }
 
   const q = query(
@@ -128,7 +117,9 @@ export async function getPresensiByMahasiswaDanPertemuan(
 
   const snapshot = await getDocs(q);
 
-  if (snapshot.empty) return null;
+  if (snapshot.empty) {
+    return null;
+  }
 
   return {
     id: snapshot.docs[0].id,
