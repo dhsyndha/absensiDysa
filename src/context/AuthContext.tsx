@@ -44,20 +44,8 @@ export function AuthProvider({
   useEffect(() => {
     async function loadSession() {
       if (isDemo) {
-        setUser({
-          uid: "demo-user",
-          nama: "",
-          nomorIdentitas: "",
-          role: "mahasiswa",
-          jabatan: "anggota",
-          email: "",
-          aktif: true,
-          refId: "demo-user",
-        });
-
-        setLoading(false);
-        return;
-      }
+  
+        
 
       const session = await getSession();
 

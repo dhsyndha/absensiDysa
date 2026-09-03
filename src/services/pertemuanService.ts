@@ -10,6 +10,13 @@ import {
 } from "firebase/firestore";
 import { getMatkulById } from "./matkulService";
 
+function isDemoMode() {
+  return (
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("demo") === "true"
+  );
+}
+
 export async function buatAtauAmbilPertemuan(
   matkulId: string
 ): Promise<{
@@ -17,10 +24,34 @@ export async function buatAtauAmbilPertemuan(
   pertemuan: number;
   materi: string;
 }> {
-
   const tanggal = new Date().toLocaleDateString("sv-SE", {
     timeZone: "Asia/Jakarta",
   });
+
+  const matkul = await getMatkulById(matkulId);
+
+  if (!matkul) {
+    throw new Error("Mata kuliah tidak ditemukan");
+  }
+
+  if (isDemoMode()) {
+    const daftarMateri =
+      materiMatkul[matkul.id] ||
+      materiMatkul[matkul.kodeMK] ||
+      [];
+
+    const nomor = 1;
+
+    const materi =
+      daftarMateri.at(nomor - 1) ??
+      `Pertemuan ${nomor}`;
+
+    return {
+      id: `demo-${matkulId}-${tanggal}`,
+      pertemuan: nomor,
+      materi,
+    };
+  }
 
   const q = query(
     collection(db, "pertemuan"),
@@ -56,20 +87,14 @@ export async function buatAtauAmbilPertemuan(
           )
         ) + 1;
 
-  const matkul = await getMatkulById(matkulId);
+  const daftarMateri =
+    materiMatkul[matkul.id] ||
+    materiMatkul[matkul.kodeMK] ||
+    [];
 
-if (!matkul) {
-  throw new Error("Mata kuliah tidak ditemukan");
-}
-
-const daftarMateri =
-  materiMatkul[matkul.id] ||
-  materiMatkul[matkul.kodeMK] ||
-  [];
-
-const materi =
-  daftarMateri.at(nomor - 1) ??
-  `Pertemuan ${nomor}`;
+  const materi =
+    daftarMateri.at(nomor - 1) ??
+    `Pertemuan ${nomor}`;
 
   const docRef = await addDoc(
     collection(db, "pertemuan"),
@@ -90,6 +115,10 @@ const materi =
 }
 
 export async function getSemuaPertemuan() {
+  if (isDemoMode()) {
+    return [];
+  }
+
   const snapshot = await getDocs(
     collection(db, "pertemuan")
   );
@@ -106,7 +135,6 @@ export async function getPreviewPertemuan(
   pertemuan: number;
   materi: string;
 } | null> {
-
   const matkul = await getMatkulById(matkulId);
 
   if (!matkul) return null;
@@ -114,6 +142,15 @@ export async function getPreviewPertemuan(
   const tanggal = new Date().toLocaleDateString("sv-SE", {
     timeZone: "Asia/Jakarta",
   });
+
+  if (isDemoMode()) {
+    return {
+      pertemuan: 1,
+      materi:
+        materiMatkul[matkul.kodeMK || matkul.id]?.[0] ??
+        "Pertemuan 1",
+    };
+  }
 
   const q = query(
     collection(db, "pertemuan"),
