@@ -33,7 +33,6 @@ export default function LoginScreen() {
     }
   }, [isDemo]);
 
-  // Kalau demo, jangan tampilkan halaman login
   if (isDemo) {
     return null;
   }

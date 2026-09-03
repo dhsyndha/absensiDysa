@@ -65,7 +65,7 @@ export default function RekapMeetingList({
       >
         <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
-            {/* No */}
+            {}
             <Text
               style={[
                 styles.headerText,
@@ -75,7 +75,7 @@ export default function RekapMeetingList({
               No
             </Text>
 
-            {/* Pertemuan */}
+            {}
             <Text
               style={[
                 styles.headerText,
@@ -85,7 +85,7 @@ export default function RekapMeetingList({
               Pert.
             </Text>
 
-            {/* Tanggal */}
+            {}
             <Text
               style={[
                 styles.headerText,
@@ -95,7 +95,7 @@ export default function RekapMeetingList({
               Tanggal
             </Text>
 
-            {/* Materi */}
+            {}
             <Text
               style={[
                 styles.headerText,
@@ -105,17 +105,17 @@ export default function RekapMeetingList({
               Materi
             </Text>
 
-            {/* Jarak setelah Materi */}
+            {}
             <View style={styles.attendanceSpacer} />
 
-            {/* Kolom Kehadiran */}
+            {}
             <Text style={styles.small}>H</Text>
             <Text style={styles.small}>T</Text>
             <Text style={styles.small}>I</Text>
             <Text style={styles.small}>S</Text>
             <Text style={styles.small}>A</Text>
 
-            {/* Persentase */}
+            {}
             <Text
               style={[
                 styles.headerText,
@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
     color: "#475569",
   },
 
-  /* Jarak antara Materi dan H */
   attendanceSpacer: {
     width: 60,
   },

@@ -80,7 +80,7 @@ if (Number(semesterId.replace("SEM", "")) < semesterAktif) {
   return (
 <View style={styles.container}>
   <View style={styles.row}>
-    {/* Semester */}
+    {}
     <View style={styles.column}>
       <Text style={styles.label}>Semester</Text>
 
@@ -110,7 +110,7 @@ if (Number(semesterId.replace("SEM", "")) < semesterAktif) {
       />
     </View>
 
-        {/* Mata Kuliah */}
+        {}
     <View style={styles.column}>
   <Text style={styles.label}>Pilih Mata Kuliah</Text>
 

@@ -26,7 +26,7 @@ if (!user && !isDemo) return null;
         },
       }}
     >
-      {/* Dashboard */}
+      {}
       <Tabs.Screen
         name="dashboard"
         options={{
@@ -37,7 +37,7 @@ if (!user && !isDemo) return null;
         }}
       />
 
-      {/* Khusus Admin */}
+      {}
       {(user?.role === "admin" || isDemo) && (
         <Tabs.Screen
           name="mahasiswa"
@@ -50,7 +50,7 @@ if (!user && !isDemo) return null;
         />
       )}
 
-      {/* Semua Role */}
+      {}
       <Tabs.Screen
         name="matakuliah"
         options={{

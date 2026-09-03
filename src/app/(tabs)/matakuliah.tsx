@@ -287,10 +287,10 @@ const getStatus = (item: any) => {
               width: `${progress}%`,
               backgroundColor:
                 status.text === "🟢 Sedang Berlangsung"
-                  ? "#22C55E" // Hijau
+                  ? "#22C55E" 
                   : status.text === "🔴 Sudah Selesai"
-                  ? "#2563EB" // Biru
-                  : "#E2E8F0", // Belum dimulai
+                  ? "#2563EB" 
+                  : "#E2E8F0", 
             },
           ]}
         />
@@ -396,7 +396,6 @@ headerSubtitle: {
     flexDirection: "row",
     alignItems: "center",
   },
-  
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
@@ -407,7 +406,6 @@ headerSubtitle: {
     fontWeight: "700",
     color: "#0F172A",
     marginBottom: 20,
-    
   },
 
   card: {

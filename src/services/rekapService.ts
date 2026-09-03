@@ -94,9 +94,6 @@ export async function getRekapLengkap(): Promise<RekapLengkap[]> {
         ? 0
         : Math.round(((hadir + telat) / totalMahasiswa) * 100);
 
-    // ==========================
-    // Generate 5 pertemuan
-    // ==========================
     const meetings: RekapMeeting[] = [];
 
     const daftarMateri = materiMatkul[kodeMK] ?? [];

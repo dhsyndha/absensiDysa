@@ -107,7 +107,6 @@ async function loadData() {
           const bisaKlik =
             canEditPresensi(user) ||
             item.id === user?.refId;
-            
           return (
             <Pressable
                 disabled={!bisaKlik}
@@ -170,7 +169,6 @@ async function loadData() {
           );
         }}
       />
-      
 
     </View>
   );

@@ -52,7 +52,7 @@ export default function RekapDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Header */}
+        {}
         <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -75,7 +75,7 @@ export default function RekapDetailScreen() {
         </View>
       </View>
 
-        {/* Informasi Mata Kuliah */}
+        {}
         <View style={styles.card}>
           <Text style={styles.nama}>{data.nama}</Text>
           <Text style={styles.dosen}>{data.dosen}</Text>
@@ -96,7 +96,7 @@ export default function RekapDetailScreen() {
           </View>
         </View>
 
-        {/* Statistik */}
+        {}
         <Text style={styles.section}>Statistik Kehadiran</Text>
 
         <View style={styles.statContainer}>
@@ -121,7 +121,7 @@ export default function RekapDetailScreen() {
           </View>
         </View>
 
-        {/* Daftar Pertemuan */}
+        {}
         {data.meetings.length === 0 ? (
             <View style={styles.empty}>
               <Feather name="book-open" size={45} color="#CBD5E1" />
@@ -133,7 +133,7 @@ export default function RekapDetailScreen() {
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator>
               <View style={styles.tableContainer}>
-                {/* Header */}
+                {}
                 <View style={styles.tableHeader}>
                   <Text style={[styles.headerCell, { width: 45 }]}>No</Text>
                   <Text style={[styles.headerCell, { width: 100 }]}>Pertemuan</Text>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
 
 header: {
-  backgroundColor: "#4F46E5", // sama seperti Rekap Absensi
+  backgroundColor: "#4F46E5", 
   paddingTop: 24,
   paddingHorizontal: 24,
   paddingBottom: 65,
@@ -261,11 +261,10 @@ headerText: {
     fontWeight: "700",
     color: "#FFF",
   },
-  
 
   card:{
   marginHorizontal:20,
-  marginTop:-50,      // <- ini yang bikin card naik
+  marginTop:-50,      
   marginBottom:16,
 
   backgroundColor:"#FFF",

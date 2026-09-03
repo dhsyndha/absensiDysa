@@ -33,7 +33,7 @@ export default function RekapCourseCard({
 }: Props) {
   return (
     <View style={styles.card}>
-      {/* ================= HEADER ================= */}
+      {}
 
       <View style={styles.header}>
         <View style={styles.left}>
@@ -99,7 +99,7 @@ export default function RekapCourseCard({
         </TouchableOpacity>
       </View>
 
-      {/* ================= STATISTIK ================= */}
+      {}
 
       <View style={styles.stats}>
         <RekapStatBox
@@ -127,7 +127,7 @@ export default function RekapCourseCard({
         />
       </View>
 
-      {/* ================= LIST PERTEMUAN ================= */}
+      {}
 
       <RekapMeetingList
           meetings={item.meetings}

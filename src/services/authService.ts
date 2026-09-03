@@ -30,7 +30,6 @@ export async function login(
 
   const userData = snapshot.docs[0].data() as User;
 
-  // Ambil jabatan terbaru dari data mahasiswa
   if (userData.role === "mahasiswa" && userData.refId) {
     const mahasiswa = await getMahasiswaById(userData.refId);
 

@@ -18,7 +18,6 @@ export async function buatAtauAmbilPertemuan(
   materi: string;
 }> {
 
-  // Cek apakah hari ini sudah ada pertemuan
   const tanggal = new Date().toLocaleDateString("sv-SE", {
     timeZone: "Asia/Jakarta",
   });
@@ -41,7 +40,6 @@ export async function buatAtauAmbilPertemuan(
     };
   }
 
-  // Hitung nomor pertemuan berikutnya
   const semua = await getDocs(
     query(
       collection(db, "pertemuan"),
@@ -58,7 +56,6 @@ export async function buatAtauAmbilPertemuan(
           )
         ) + 1;
 
-  // Ambil data matkul
   const matkul = await getMatkulById(matkulId);
 
 if (!matkul) {
@@ -118,7 +115,6 @@ export async function getPreviewPertemuan(
     timeZone: "Asia/Jakarta",
   });
 
-  // Cek apakah hari ini sudah ada pertemuan
   const q = query(
     collection(db, "pertemuan"),
     where("matkulId", "==", matkulId),
@@ -136,7 +132,6 @@ export async function getPreviewPertemuan(
     };
   }
 
-  // Kalau belum ada pertemuan hari ini
   return {
     pertemuan: 1,
     materi:

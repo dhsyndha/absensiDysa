@@ -10,16 +10,12 @@ import {
 } from "@expo/vector-icons";
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  useFonts({
     ...Ionicons.font,
     ...FontAwesome5.font,
     ...Feather.font,
     ...MaterialCommunityIcons.font,
   });
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     <AuthProvider>

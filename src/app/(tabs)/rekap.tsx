@@ -48,16 +48,13 @@ export default function RekapScreen() {
     semesterId.replace("SEM", "")
   );
 
-  // Filter semester
   const dataSemesterFilter =
   semesterId === "SEM4"
     ? rekapData
     : [];
 
-  // Kalau mahasiswa → hanya matkul yang dia ambil
 const dataMahasiswaFilter = dataSemesterFilter;
 
-  // Filter mata kuliah
   const dataTampil =
     matkulId === "semua"
       ? dataMahasiswaFilter

@@ -61,7 +61,6 @@ useEffect(() => {
 }, []);
 
 
-  
   function showModal(
   icon: string,
   title: string,
@@ -129,7 +128,6 @@ async function ambilFoto() {
       return;
     }
 
-    // kalau tidak ada presensi
     setStatus("Belum");
     setAlasan("");
     setFoto("");
@@ -175,7 +173,6 @@ async function ambilFoto() {
         );
         return;
       }
-      
       const now = new Date();
 
       const jam = now.toLocaleTimeString("id-ID", {
@@ -237,7 +234,7 @@ await simpanPresensi(data);
         showsVerticalScrollIndicator={false}
       >
 
-        {/* Header */}
+        {}
         <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -257,7 +254,7 @@ await simpanPresensi(data);
         </View>
       </View>
 
-        {/* Profile */}
+        {}
 
         <View style={styles.profileCard}>
 
@@ -283,7 +280,7 @@ await simpanPresensi(data);
           </Text>
         </View>
 
-        {/* Card */}
+        {}
 
         <View style={styles.card}>
 

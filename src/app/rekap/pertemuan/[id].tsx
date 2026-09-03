@@ -85,7 +85,6 @@ export default function DetailPertemuan() {
           </View>
         </View>
       </View>
-        
 
         <View style={styles.Topcard}>
           <Text style={styles.pertemuan}>

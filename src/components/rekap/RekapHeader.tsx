@@ -14,7 +14,7 @@ export default function RekapHeader() {
       style={styles.container}
     >
 
-      {/* HEADER */}
+      {}
       <View style={styles.header}>
         <View style={styles.titleBox}>
           <Text style={styles.title}>

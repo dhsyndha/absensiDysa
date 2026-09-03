@@ -43,31 +43,22 @@ const namaMahasiswa = [
 function getMataKuliah(index: number): string[] {
   const matkul: string[] = [];
 
-  // MK001 = 32 mahasiswa
   if (index < 32) matkul.push("MK001");
 
-  // MK002 = 33 mahasiswa
   if (index < 33) matkul.push("MK002");
 
-  // MK003 = 35 mahasiswa
   if (index < 35) matkul.push("MK003");
 
-  // MK004 = 30 mahasiswa
   if (index < 30) matkul.push("MK004");
 
-  // MK005 = 31 mahasiswa
   if (index < 31) matkul.push("MK005");
 
-  // MK006 = 29 mahasiswa
   if (index < 29) matkul.push("MK006");
 
-  // MK006 = 29 mahasiswa
   if (index < 35) matkul.push("MK007");
 
-  // MK006 = 29 mahasiswa
   if (index < 35) matkul.push("MK008");
 
-  // MK006 = 29 mahasiswa
   if (index < 35) matkul.push("MK009");
 
   return matkul;

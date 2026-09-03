@@ -7,7 +7,6 @@ export async function seedDatabase() {
   try {
     console.log("🚀 Import dimulai...");
 
-    // Import Mata Kuliah
     for (const hari in data) {
       const jadwal = data[hari as keyof typeof data];
 
@@ -21,7 +20,6 @@ export async function seedDatabase() {
       }
     }
 
-    // Import Mahasiswa
     for (const mahasiswa of dataMahasiswa) {
       await setDoc(
         doc(db, "mahasiswa", mahasiswa.id),

@@ -28,22 +28,22 @@ export default function RekapMeetingItem({
 }: Props) {
   return (
     <View style={styles.row}>
-      {/* No */}
+      {}
       <Text style={[styles.cell, styles.no]}>
         {index + 1}
       </Text>
 
-      {/* Pertemuan */}
+      {}
       <Text style={[styles.cell, styles.pertemuan]}>
         P{item.pertemuan}
       </Text>
 
-      {/* Tanggal */}
+      {}
       <Text style={[styles.cell, styles.tanggal]}>
         {item.tanggal}
       </Text>
 
-      {/* Materi */}
+      {}
       <Text
         style={[styles.cell, styles.materi]}
         numberOfLines={1}
@@ -51,35 +51,35 @@ export default function RekapMeetingItem({
         {item.materi}
       </Text>
 
-      {/* Jarak setelah Materi */}
+      {}
       <View style={styles.attendanceSpacer} />
 
-      {/* H */}
+      {}
       <Text style={styles.number}>
         {item.hadir}
       </Text>
 
-      {/* T */}
+      {}
       <Text style={styles.number}>
         {item.telat}
       </Text>
 
-      {/* I */}
+      {}
       <Text style={styles.number}>
         {item.izin}
       </Text>
 
-      {/* S */}
+      {}
       <Text style={styles.number}>
         {item.sakit}
       </Text>
 
-      {/* A */}
+      {}
       <Text style={styles.number}>
         {item.tidakHadir}
       </Text>
 
-      {/* Persentase */}
+      {}
       <View style={styles.percent}>
         <Text style={styles.percentText}>
           {item.persentase}%
@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  /* Jarak antara Materi dan H */
   attendanceSpacer: {
     width: 60,
   },

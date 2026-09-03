@@ -93,7 +93,6 @@ const [showBelumAbsen, setShowBelumAbsen] =
     pertemuan: number;
     materi: string;
   } | null>(null);
-  
 useFocusEffect(
   useCallback(() => {
     loadJadwal();
@@ -360,7 +359,7 @@ if (sekarang) {
       ))}
     </View>
 
-    {/* ===== KONTROL KEHADIRAN DOSEN ===== */}
+    {}
     {matkulSekarang && user && canEditPresensi(user) && (
   <>
     <Text style={styles.section}>
@@ -442,7 +441,6 @@ if (sekarang) {
                 "hadir"
               );
               loadJadwal();
-              
             }}
           >
             <Text style={styles.actionText}>

@@ -19,8 +19,6 @@ export async function getUser(uid: string) {
 
   const userData = snapshot.data() as User;
 
-  // Kalau user adalah mahasiswa,
-  // ambil jabatan dari collection mahasiswa
   if (userData.role === "mahasiswa" && userData.refId) {
 
     const mahasiswa = await getMahasiswaById(
