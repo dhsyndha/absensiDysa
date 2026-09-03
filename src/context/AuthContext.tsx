@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useEffect } from "react";
 import { getSession } from "@/services/sessionService";
+import { setDemoMode } from "@/services/presensiService";
 
 type UserType = User | null;
 
@@ -42,6 +43,8 @@ export function AuthProvider({
   });
 
   useEffect(() => {
+    setDemoMode(isDemo);
+
     async function loadSession() {
       if (isDemo) {
         setUser({

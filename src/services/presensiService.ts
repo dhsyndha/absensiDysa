@@ -11,11 +11,14 @@ import {
 
 const demoPresensi: Record<string, Presensi> = {};
 
+let demoMode = false;
+
+export function setDemoMode(value: boolean) {
+  demoMode = value;
+}
+
 function isDemoMode() {
-  return (
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("demo") === "true"
-  );
+  return demoMode;
 }
 
 export async function simpanPresensi(data: Presensi) {
@@ -32,6 +35,7 @@ export async function simpanPresensi(data: Presensi) {
           minute: "2-digit",
         }),
     };
+
     return;
   }
 
@@ -91,9 +95,7 @@ export async function getPresensiByMahasiswaDanPertemuan(
   pertemuanId: string
 ) {
   if (isDemoMode()) {
-    return (
-      demoPresensi[`${pertemuanId}_${mahasiswaId}`] || null
-    );
+    return demoPresensi[`${pertemuanId}_${mahasiswaId}`] || null;
   }
 
   const q = query(
