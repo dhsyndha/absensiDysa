@@ -42,6 +42,14 @@ export async function getPresensiByMatkul(
   matkulId: string,
   pertemuanId: string
 ) {
+  if (isDemoMode()) {
+    return Object.values(demoPresensi).filter(
+      (item) =>
+        item.matkulId === matkulId &&
+        item.pertemuanId === pertemuanId
+    );
+  }
+
   const q = query(
     collection(db, "presensi"),
     where("matkulId", "==", matkulId),
@@ -50,27 +58,21 @@ export async function getPresensiByMatkul(
 
   const snapshot = await getDocs(q);
 
-  const firebaseData = snapshot.docs.map((doc) => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  })) as Presensi[];
-
-  if (!isDemoMode()) {
-    return firebaseData;
-  }
-
-  return firebaseData.map((item) => {
-    const demo = demoPresensi[
-      `${item.pertemuanId}_${item.mahasiswaId}`
-    ];
-
-    return demo || item;
-  });
+  }));
 }
 
 export async function getPresensiMahasiswa(
   mahasiswaId: string
 ) {
+  if (isDemoMode()) {
+    return Object.values(demoPresensi).filter(
+      (item) => item.mahasiswaId === mahasiswaId
+    );
+  }
+
   const q = query(
     collection(db, "presensi"),
     where("mahasiswaId", "==", mahasiswaId)
@@ -78,22 +80,10 @@ export async function getPresensiMahasiswa(
 
   const snapshot = await getDocs(q);
 
-  const firebaseData = snapshot.docs.map((doc) => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  })) as Presensi[];
-
-  if (!isDemoMode()) {
-    return firebaseData;
-  }
-
-  return firebaseData.map((item) => {
-    const demo = demoPresensi[
-      `${item.pertemuanId}_${item.mahasiswaId}`
-    ];
-
-    return demo || item;
-  });
+  }));
 }
 
 export async function getPresensiByMahasiswaDanPertemuan(
@@ -101,12 +91,9 @@ export async function getPresensiByMahasiswaDanPertemuan(
   pertemuanId: string
 ) {
   if (isDemoMode()) {
-    const demo =
-      demoPresensi[`${pertemuanId}_${mahasiswaId}`];
-
-    if (demo) {
-      return demo;
-    }
+    return (
+      demoPresensi[`${pertemuanId}_${mahasiswaId}`] || null
+    );
   }
 
   const q = query(
