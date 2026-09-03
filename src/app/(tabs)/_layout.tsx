@@ -1,15 +1,11 @@
 import { Tabs } from "expo-router";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/context/AuthContext";
 
 export default function TabLayout() {
-  const user = useUser();
+  const { user, isDemo } = useAuth();
 
-  const isDemo =
-  typeof window !== "undefined" &&
-  new URLSearchParams(window.location.search).get("demo") === "true";
-
-if (!user && !isDemo) return null;
+  if (!user && !isDemo) return null;
 
   return (
     <Tabs
@@ -26,7 +22,6 @@ if (!user && !isDemo) return null;
         },
       }}
     >
-      {}
       <Tabs.Screen
         name="dashboard"
         options={{
@@ -37,20 +32,17 @@ if (!user && !isDemo) return null;
         }}
       />
 
-      {}
-      {(user?.role === "admin" || isDemo) && (
-        <Tabs.Screen
-          name="mahasiswa"
-          options={{
-            title: "Mahasiswa",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome5 name="users" size={20} color={color} />
-            ),
-          }}
-        />
-      )}
+      <Tabs.Screen
+        name="mahasiswa"
+        options={{
+          title: "Mahasiswa",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="users" size={20} color={color} />
+          ),
+          href: user?.role === "admin" || isDemo ? undefined : null,
+        }}
+      />
 
-      {}
       <Tabs.Screen
         name="matakuliah"
         options={{
@@ -66,11 +58,7 @@ if (!user && !isDemo) return null;
         options={{
           title: "Rekap",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5
-              name="chart-bar"
-              size={20}
-              color={color}
-            />
+            <FontAwesome5 name="chart-bar" size={20} color={color} />
           ),
         }}
       />

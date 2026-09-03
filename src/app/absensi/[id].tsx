@@ -13,6 +13,7 @@ import { Mahasiswa as MahasiswaType } from "@/types/Mahasiswa";
 import { MataKuliah as MataKuliahType } from "@/types/MataKuliah";
 import { canEditPresensi } from "@/services/permissionService";
 import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/context/AuthContext";
 import {
   FlatList,
   Pressable,
@@ -25,6 +26,7 @@ import {
 export default function AbsensiScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const user = useUser();
+  const { isDemo } = useAuth();
   const [matkul, setMatkul] = useState<MataKuliahType | null>(null);
   const [mahasiswa, setMahasiswa] = useState<MahasiswaType[]>([]);
   const [presensi, setPresensi] = useState<any[]>([]);
@@ -71,7 +73,7 @@ async function loadData() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.replace("/dashboard")}
+          onPress={() => router.back()}
           style={styles.backButton}
         >
           <Ionicons
@@ -105,6 +107,7 @@ async function loadData() {
 
           const status = data?.status ?? "Belum";
           const bisaKlik =
+            isDemo ||
             canEditPresensi(user) ||
             item.id === user?.refId;
           return (

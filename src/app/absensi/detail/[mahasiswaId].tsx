@@ -239,7 +239,7 @@ await simpanPresensi(data);
         <View style={styles.headerTop}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.replace("/dashboard")}
+            onPress={() => router.back()}
           >
             <Feather
               name="arrow-left"
